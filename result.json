@@ -1,0 +1,16 @@
+[
+  {
+    "key": "bdbe17a289b582a6cbc96a47a8a4233bd5bb48f9651e7add3143da9eb899fc41",
+    "value": [
+      ".git\\logs\\HEAD",
+      ".git\\logs\\refs\\heads\\main"
+    ]
+  },
+  {
+    "key": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6",
+    "value": [
+      "test\\c-1.txt",
+      "test\\c-2.txt"
+    ]
+  }
+]

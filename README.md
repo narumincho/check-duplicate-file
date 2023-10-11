@@ -1,3 +1,3 @@
 ```sh
-deno run --check --allow-read=G:マイドライブ ./main.ts
+deno run --check --allow-read=. --allow-write=./result.json ./mod.ts
 ```

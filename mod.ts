@@ -1,20 +1,22 @@
 import { encodeHex } from "https://deno.land/std@0.203.0/encoding/hex.ts";
+import { join } from "https://deno.land/std@0.203.0/path/mod.ts";
 
 export const checkDuplicateFile = async (
-  directoryPath: URL,
+  directoryPath: string,
   prevResult: ReadonlyMap<string, ReadonlySet<string>> = new Map()
 ): Promise<ReadonlyMap<string, ReadonlySet<string>>> => {
   let map = prevResult;
   for await (const entry of Deno.readDir(directoryPath)) {
-    const url = new URL(entry.name, directoryPath);
+    const url = join(directoryPath, entry.name);
     if (entry.isFile) {
-      const fileContent = await fetch(url);
+      console.log(url.toString());
+      const fileContent = await Deno.readFile(url);
       const hashValue = encodeHex(
-        await crypto.subtle.digest("SHA-256", await fileContent.arrayBuffer())
+        await crypto.subtle.digest("SHA-256", fileContent)
       );
       const oldSet = map.get(hashValue);
       if (oldSet === undefined) {
-        map = new Map(map).set(hashValue, new Set(url.toString()));
+        map = new Map(map).set(hashValue, new Set([url.toString()]));
       } else {
         map = new Map(map).set(hashValue, new Set([...oldSet, url.toString()]));
       }
@@ -33,10 +35,14 @@ const saveResultFile = async (
     "./result.json",
     JSON.stringify(
       [...result]
-        .sort((a, b) => a.length - b.length)
+        .filter(([_, value]) => value.size > 1)
         .map(([key, value]) => ({ key, value: [...value] })),
       null,
       2
     )
   );
 };
+
+if (import.meta.main) {
+  await checkDuplicateFile(".");
+}
