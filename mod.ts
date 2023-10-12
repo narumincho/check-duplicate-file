@@ -7,21 +7,28 @@ export const checkDuplicateFile = async (
 ): Promise<ReadonlyMap<string, ReadonlySet<string>>> => {
   let map = prevResult;
   for await (const entry of Deno.readDir(directoryPath)) {
-    const url = join(directoryPath, entry.name);
+    const path = join(directoryPath, entry.name);
     if (entry.isFile) {
-      console.log(url.toString());
-      const fileContent = await Deno.readFile(url);
+      if (path.endsWith(".gsheet") || path.endsWith(".gdoc")) {
+        console.log(" * " + path + " はスキップ");
+        continue;
+      }
+      console.log(path);
+      const fileContent = await Deno.readFile(path);
       const hashValue = encodeHex(
         await crypto.subtle.digest("SHA-256", fileContent)
       );
       const oldSet = map.get(hashValue);
       if (oldSet === undefined) {
-        map = new Map(map).set(hashValue, new Set([url.toString()]));
+        map = new Map(map).set(hashValue, new Set([path.toString()]));
       } else {
-        map = new Map(map).set(hashValue, new Set([...oldSet, url.toString()]));
+        map = new Map(map).set(
+          hashValue,
+          new Set([...oldSet, path.toString()])
+        );
       }
     } else if (entry.isDirectory) {
-      map = await checkDuplicateFile(url, map);
+      map = await checkDuplicateFile(path, map);
     }
   }
   await saveResultFile(map);
