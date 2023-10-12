@@ -9,7 +9,11 @@ export const checkDuplicateFile = async (
   for await (const entry of Deno.readDir(directoryPath)) {
     const path = join(directoryPath, entry.name);
     if (entry.isFile) {
-      if (path.endsWith(".gsheet") || path.endsWith(".gdoc")) {
+      if (
+        path.endsWith(".gsheet") ||
+        path.endsWith(".gdoc") ||
+        path.endsWith(".gslides")
+      ) {
         console.log(" * " + path + " はスキップ");
         continue;
       }
